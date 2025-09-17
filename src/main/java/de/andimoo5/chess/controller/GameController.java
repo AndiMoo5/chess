@@ -6,11 +6,31 @@ public class GameController {
     private final GameState gameState;
     private final GameMode gameMode;
     private final AIPlayer aiPlayer;
+    private PlayerTimer whiteTimer;
+    private PlayerTimer blackTimer;
 
     public GameController(GameMode mode) {
         this.gameMode = mode;
         this.gameState = new GameState();
         this.aiPlayer = (gameMode != GameMode.HUMAN_VS_HUMAN) ? new AIPlayer() : null;
+    }
+
+    public void startGameWithTimer(long millisPerPlayer) {
+        whiteTimer = new PlayerTimer(millisPerPlayer);
+        blackTimer = new PlayerTimer(millisPerPlayer);
+        whiteTimer.start();
+    }
+
+    private void switchTimers() {
+        if (whiteTimer != null && blackTimer != null) {
+            if (gameState.isWhiteToMove()) {
+                blackTimer.stop();
+                whiteTimer.start();
+            } else {
+                whiteTimer.stop();
+                blackTimer.start();
+            }
+        }
     }
 
     public GameState getGameState() {
@@ -23,11 +43,16 @@ public class GameController {
         Move move = createMove(from, to, piece, chosenPromotion);
         if (!gameState.isLegalMove(move)) return false;
         gameState.applyMove(move);
+        switchTimers();
         if (gameMode == GameMode.HUMAN_VS_AI && !gameState.isWhiteToMove()) {
             handleAIMove();
         } else if (gameMode == GameMode.AI_VS_AI) {
             while (gameState.getStatus() == GameStatus.ONGOING) {
+                switchTimers();
                 handleAIMove();
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException ignored) {}
             }
         }
         return true;
