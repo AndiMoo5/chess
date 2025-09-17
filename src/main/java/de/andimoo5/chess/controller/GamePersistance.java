@@ -1,0 +1,40 @@
+package de.andimoo5.chess.controller;
+
+import de.andimoo5.chess.model.*;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.io.IOException;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
+public class GamePersistance {
+    private final ObjectMapper mapper = new ObjectMapper();
+
+    public void saveGame(GameState gameState, File file, boolean vsAI) throws IOException {
+        List<MoveDTO> moveDTOs = new ArrayList<>();
+        for (Move move : gameState.getMoveHistory()) {
+            moveDTOs.add(MoveDTO.fromMove(move));
+        }
+        GameSave save = new GameSave(moveDTOs, gameState.isWhiteToMove(), vsAI);
+        mapper.writeValue(file, save);
+    }
+
+    public GameState loadGame(File file) throws IOException {
+        GameSave save = mapper.readValue(file, GameSave.class);
+        GameState state = new GameState();
+        Board board = state.getBoard();
+        board.initializeBoard();
+        for (MoveDTO dto : save.moves) {
+            Position from = Position.getFromString(dto.from);
+            Position to = Position.getFromString(dto.to);
+            Piece piece = PieceFactory.create(PieceType.valueOf(dto.pieceType), dto.isWhite, from);
+            Piece captured = board.getPieceAt(to);
+            PieceType promotionType = dto.promotionType != null ? PieceType.valueOf(dto.promotionType) : null;
+            Move move = new Move(from, to, piece, captured, dto.isPromotion,
+                    promotionType, dto.isCastling, dto.isEnPassant, board.getMoveHistory().size() + 1);
+            board.makeMove(move);
+        }
+        return state;
+    }
+}
