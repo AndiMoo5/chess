@@ -28,6 +28,9 @@ public class GameState {
     }
 
     public void applyMove(Move move) {
+        if (!isLegalMove(move)) {
+            throw new IllegalArgumentException("Illegal move attempted: " + move);
+        }
         board.makeMove(move);
         updateGameStatus();
     }
@@ -107,5 +110,16 @@ public class GameState {
             }
         }
         throw new IllegalStateException("King not found on board.");
+    }
+
+    public boolean isLegalMove(Move move) {
+        Piece piece = move.getMovedPiece();
+        if (piece == null || piece.isWhite != isWhiteToMove()) return false;
+        List<Position> legalTargets = piece.getLegalMoves(board);
+        if (!legalTargets.contains(move.getTo())) return false;
+        Board clone = board.cloneForSim();
+        clone.makeMove(move);
+        Position kingPos = findKing(clone, piece.isWhite());
+        return !clone.isSquareAttacked(kingPos, !piece.isWhite());
     }
 }
