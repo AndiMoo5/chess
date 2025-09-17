@@ -1,0 +1,67 @@
+package de.andimoo5.chess.controller;
+
+import de.andimoo5.chess.model.*;
+
+public class GameController {
+    private final GameState gameState;
+    private final boolean vsAI;
+    private final AIPlayer aiPlayer;
+
+    public GameController(boolean vsAI) {
+        this.vsAI = vsAI;
+        this.gameState = new GameState();
+        this.aiPlayer = vsAI ? new AIPlayer() : null;
+    }
+
+    public GameState getGameState() {
+        return gameState;
+    }
+
+    public boolean handleMove(Position from, Position to, PieceType chosenPromotion) {
+        Piece piece = getGameState().getBoard().getPieceAt(from);
+        if (piece == null || piece.isWhite() != gameState.isWhiteToMove()) return false;
+        Move move = createMove(from, to, piece, chosenPromotion);
+        if (!gameState.isLegalMove(move)) return false;
+        gameState.applyMove(move);
+        if (vsAI && !gameState.isWhiteToMove()) {
+            handleAIMove();
+        }
+        return true;
+    }
+
+    public boolean handleMove(Position from, Position to) {
+        return handleMove(from, to, null);
+    }
+
+    private Move createMove(Position from, Position to, Piece piece, PieceType promotionType) {
+        Piece captured = gameState.getBoard().getPieceAt(to);
+        boolean isPromotion = piece.getType() == PieceType.PAWN &&
+                (to.rank() == 8 || to.rank() == 1);
+        if (!isPromotion) {
+            promotionType = null;
+        } else if (promotionType == null || promotionType == PieceType.PAWN || promotionType == PieceType.KING) {
+            promotionType = PieceType.QUEEN;
+        }
+        boolean isCastling = piece.getType() == PieceType.KING &&
+                Math.abs(from.file() - to.file()) == 2;
+        boolean isEnPassant = piece.getType() == PieceType.PAWN &&
+                to.equals(gameState.getBoard().getEnPassantTarget());
+        return new Move(from, to, piece, captured, isPromotion, promotionType, isCastling,
+                isEnPassant, gameState.getMoveHistory().size() + 1);
+    }
+
+    private void handleAIMove() {
+        Move aiMove = aiPlayer.calculateMove(gameState.getBoard());
+        if (aiMove != null && gameState.isLegalMove(aiMove)) {
+            gameState.applyMove(aiMove);
+        }
+    }
+
+    public void startNewGame() {
+        gameState.getBoard().initializeBoard();
+    }
+
+    public GameStatus getStatus() {
+        return gameState.getStatus();
+    }
+}
