@@ -1,17 +1,19 @@
 package de.andimoo5.chess.model;
 
+import de.andimoo5.chess.controller.GameMode;
+
 import java.util.List;
 
 public class GameSave {
     public List<MoveDTO> moves;
     public boolean whiteToMove;
-    public boolean vsAI;
+    public GameMode gameMode;
 
     public GameSave() {}
 
-    public GameSave(List<MoveDTO> moves, boolean whiteToMove, boolean vsAI) {
+    public GameSave(List<MoveDTO> moves, boolean whiteToMove, GameMode mode) {
         this.moves = moves;
         this.whiteToMove = whiteToMove;
-        this.vsAI = vsAI;
+        this.gameMode = mode;
     }
 }

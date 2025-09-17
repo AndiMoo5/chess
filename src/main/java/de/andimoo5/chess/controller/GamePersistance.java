@@ -11,12 +11,12 @@ import java.util.List;
 public class GamePersistance {
     private final ObjectMapper mapper = new ObjectMapper();
 
-    public void saveGame(GameState gameState, File file, boolean vsAI) throws IOException {
+    public void saveGame(GameState gameState, File file, GameMode gameMode) throws IOException {
         List<MoveDTO> moveDTOs = new ArrayList<>();
         for (Move move : gameState.getMoveHistory()) {
             moveDTOs.add(MoveDTO.fromMove(move));
         }
-        GameSave save = new GameSave(moveDTOs, gameState.isWhiteToMove(), vsAI);
+        GameSave save = new GameSave(moveDTOs, gameState.isWhiteToMove(), gameMode);
         mapper.writeValue(file, save);
     }
 

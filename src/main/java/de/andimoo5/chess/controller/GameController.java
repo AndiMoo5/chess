@@ -4,13 +4,13 @@ import de.andimoo5.chess.model.*;
 
 public class GameController {
     private final GameState gameState;
-    private final boolean vsAI;
+    private final GameMode gameMode;
     private final AIPlayer aiPlayer;
 
-    public GameController(boolean vsAI) {
-        this.vsAI = vsAI;
+    public GameController(GameMode mode) {
+        this.gameMode = mode;
         this.gameState = new GameState();
-        this.aiPlayer = vsAI ? new AIPlayer() : null;
+        this.aiPlayer = (gameMode != GameMode.HUMAN_VS_HUMAN) ? new AIPlayer() : null;
     }
 
     public GameState getGameState() {
@@ -23,8 +23,12 @@ public class GameController {
         Move move = createMove(from, to, piece, chosenPromotion);
         if (!gameState.isLegalMove(move)) return false;
         gameState.applyMove(move);
-        if (vsAI && !gameState.isWhiteToMove()) {
+        if (gameMode == GameMode.HUMAN_VS_AI && !gameState.isWhiteToMove()) {
             handleAIMove();
+        } else if (gameMode == GameMode.AI_VS_AI) {
+            while (gameState.getStatus() == GameStatus.ONGOING) {
+                handleAIMove();
+            }
         }
         return true;
     }
