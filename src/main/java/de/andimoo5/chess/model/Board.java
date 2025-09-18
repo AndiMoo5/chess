@@ -157,9 +157,7 @@ public class Board {
             for (int file = 0; file < 8; file++) {
                 Piece original = this.grid[rank][file];
                 if (original != null) {
-                    Position pos = new Position((char) ('a' + file), rank + 1);
-                    Piece clone = PieceFactory.create(original.getType(), original.isWhite(), pos);
-                    clone.setHasMoved(original.hasMoved());
+                    Piece clone = PieceFactory.createClone(original);
                     copy.grid[rank][file] = clone;
                 }
             }
@@ -167,8 +165,67 @@ public class Board {
         if (this.enPassantTarget != null) {
             copy.enPassantTarget = new Position(this.enPassantTarget.file(), this.enPassantTarget.rank());
         }
-        copy.moveHistory.addAll(this.moveHistory);
+        for (Move move : this.moveHistory) {
+            copy.moveHistory.add(move.clone());
+        }
         copy.whiteToMove = this.whiteToMove;
         return copy;
+    }
+
+    public void undoMove(Move move) {
+        Piece piece = getPieceAt(move.getTo());
+        if (move.isPromotion()) {
+            piece = new Pawn(piece.isWhite(), move.getFrom());
+        }
+        setPieceAt(move.getFrom(), piece);
+        piece.setHasMoved(move.getMovedPiece().hasMoved());
+        setPieceAt(move.getTo(), null);
+        if (move.getCapturedPiece() != null) {
+            if (move.isEnPassant()) {
+                Position capturedPos = new Position(move.getTo().file(), move.getFrom().rank());
+                setPieceAt(capturedPos, move.getCapturedPiece());
+            } else {
+                setPieceAt(move.getTo(), move.getCapturedPiece());
+            }
+        }
+        if (move.isCastling()) {
+            int rank = move.getFrom().rank();
+            if (move.getTo().file() == 'g') {
+                Position rookFrom = new Position('f', rank);
+                Position rookTo = new Position('h', rank);
+                Piece rook = getPieceAt(rookFrom);
+                setPieceAt(rookTo, rook);
+                setPieceAt(rookFrom, null);
+                if (rook != null) {
+                    rook.setPosition(rookTo);
+                    rook.setHasMoved(move.getMovedPiece().hasMoved());
+                }
+            } else if (move.getTo().file() == 'c') {
+                Position rookFrom = new Position('d', rank);
+                Position rookTo = new Position('a', rank);
+                Piece rook = getPieceAt(rookFrom);
+                setPieceAt(rookTo, rook);
+                setPieceAt(rookFrom, null);
+                if (rook != null) {
+                    rook.setPosition(rookTo);
+                    rook.setHasMoved(false);
+                }
+            }
+        }
+        if (!moveHistory.isEmpty() && moveHistory.getLast().equals(move)) {
+            moveHistory.removeLast();
+        }
+        whiteToMove = !whiteToMove;
+        enPassantTarget = null;
+        if (!moveHistory.isEmpty()) {
+            Move previous = moveHistory.getLast();
+            PieceType type = previous.getMovedPiece().getType();
+            boolean isPawnDoubleStep = type == PieceType.PAWN &&
+                    Math.abs(previous.getFrom().rank() - previous.getTo().rank()) == 2;
+            if (isPawnDoubleStep) {
+                enPassantTarget = new Position(previous.getFrom().file(),
+                        (previous.getFrom().rank() + previous.getTo().rank()) / 2);
+            }
+        }
     }
 }

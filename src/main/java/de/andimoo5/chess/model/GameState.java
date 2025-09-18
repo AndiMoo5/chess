@@ -122,4 +122,12 @@ public class GameState {
         Position kingPos = findKing(clone, piece.isWhite());
         return !clone.isSquareAttacked(kingPos, !piece.isWhite());
     }
+
+    public void undoLastMove() {
+        if (!board.getMoveHistory().isEmpty()) {
+            Move last = board.getMoveHistory().removeLast();
+            board.undoMove(last);
+            updateGameStatus();
+        }
+    }
 }

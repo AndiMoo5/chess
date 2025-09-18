@@ -111,4 +111,19 @@ public class Move {
         }
         return sb.toString();
     }
+
+    @Override
+    public Move clone() {
+        return new Move(
+                new Position(from.file(), from.rank()),
+                new Position(to.file(), to.rank()),
+                PieceFactory.createClone(movedPiece),
+                capturedPiece != null ? PieceFactory.createClone(capturedPiece) : null,
+                isPromotion,
+                promotionType,
+                isCastling,
+                isEnPassant,
+                moveNumber
+        );
+    }
 }
