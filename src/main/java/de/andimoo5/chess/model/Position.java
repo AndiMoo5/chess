@@ -22,7 +22,7 @@ public record Position(char file, int rank) {
         if (notation == null || notation.length() != 2) {
             throw new IllegalArgumentException("Invalid Notation: " + notation);
         }
-        char file = notation.charAt(0);
+        char file = Character.toLowerCase(notation.charAt(0));
         int rank = notation.charAt(1) - '0';
         if (file < 'a' || file > 'h') {
             throw new IllegalArgumentException("File must be between 'a' and 'h'.");

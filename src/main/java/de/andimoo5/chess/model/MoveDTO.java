@@ -22,4 +22,15 @@ public class MoveDTO {
         dto.isEnPassant = move.isEnPassant();
         return dto;
     }
+
+    public Move toMove(Board board) {
+        Position fromPos = Position.getFromString(from);
+        Position toPos = Position.getFromString(to);
+        Piece movedPiece = PieceFactory.create(PieceType.valueOf(pieceType), isWhite, fromPos);
+        Piece capturedPiece = board.getPieceAt(toPos);
+        PieceType promoType = (promotionType != null) ? PieceType.valueOf(promotionType) : null;
+        int moveNumber = board.getMoveHistory().size() + 1;
+        return new Move(fromPos, toPos, movedPiece, capturedPiece, isPromotion, promoType,
+                isCastling, isEnPassant, moveNumber);
+    }
 }

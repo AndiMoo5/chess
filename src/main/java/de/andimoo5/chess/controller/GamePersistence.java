@@ -29,13 +29,10 @@ public class GamePersistence {
         Board board = state.getBoard();
         board.initializeBoard();
         for (MoveDTO dto : save.moves) {
-            Position from = Position.getFromString(dto.from);
-            Position to = Position.getFromString(dto.to);
-            Piece piece = PieceFactory.create(PieceType.valueOf(dto.pieceType), dto.isWhite, from);
-            Piece captured = board.getPieceAt(to);
-            PieceType promotionType = dto.promotionType != null ? PieceType.valueOf(dto.promotionType) : null;
-            Move move = new Move(from, to, piece, captured, dto.isPromotion,
-                    promotionType, dto.isCastling, dto.isEnPassant, board.getMoveHistory().size() + 1);
+            Move move = dto.toMove(board);
+            if (!state.isLegalMove(move)) {
+                throw new IllegalStateException("Illegal move in save file: "+ move);
+            }
             board.makeMove(move);
         }
         return state;
