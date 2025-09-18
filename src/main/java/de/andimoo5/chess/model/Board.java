@@ -21,7 +21,7 @@ public class Board {
                     = new Pawn(true, new Position(file, 2));
             grid[Position.getFromString(file + "2").getRankIndex()]
                     [Position.getFromString(file + "2").getFileIndex()]
-                    = new Pawn(false, new Position(file, 2));
+                    = new Pawn(false, new Position(file, 7));
         }
         placeBackRank(true, 1);
         placeBackRank(false, 8);

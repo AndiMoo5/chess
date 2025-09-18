@@ -8,15 +8,18 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-public class GamePersistance {
+public class GamePersistence {
     private final ObjectMapper mapper = new ObjectMapper();
 
-    public void saveGame(GameState gameState, File file, GameMode gameMode) throws IOException {
+    public void saveGame(GameState gameState, File file, GameMode gameMode, long whiteTimeRemaining,
+                         long blackTimeRemaining, String playerWhiteName, String playerBlackName, Theme theme,
+                         boolean showLegalMoves) throws IOException {
         List<MoveDTO> moveDTOs = new ArrayList<>();
         for (Move move : gameState.getMoveHistory()) {
             moveDTOs.add(MoveDTO.fromMove(move));
         }
-        GameSave save = new GameSave(moveDTOs, gameState.isWhiteToMove(), gameMode);
+        GameSave save = new GameSave(moveDTOs, gameState.isWhiteToMove(), gameMode, whiteTimeRemaining,
+                blackTimeRemaining, playerWhiteName, playerBlackName, theme, showLegalMoves);
         mapper.writeValue(file, save);
     }
 

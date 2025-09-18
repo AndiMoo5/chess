@@ -10,7 +10,7 @@ public class AIPlayer {
     private final Random random = new Random();
 
     public Move calculateMove(Board board) {
-        List<Move> legalMoves = getAllLegalMoves(board, false);
+        List<Move> legalMoves = getAllLegalMoves(board, board.isWhiteToMove());
         if (legalMoves.isEmpty()) return null;
         return legalMoves.get(random.nextInt(legalMoves.size()));
     }
