@@ -38,4 +38,11 @@ public class Pawn extends Piece{
     public PieceType getType() {
         return PieceType.PAWN;
     }
+
+    @Override
+    public Piece clone() {
+        Piece copy = new Pawn(isWhite, position);
+        copy.setHasMoved(hasMoved);
+        return copy;
+    }
 }

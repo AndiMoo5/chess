@@ -13,4 +13,10 @@ public class PieceFactory {
         }
         return piece;
     }
+
+    public static Piece createClone(Piece original) {
+        Piece clone = create(original.getType(), original.isWhite(), original.getPosition());
+        clone.setHasMoved(original.hasMoved());
+        return clone;
+    }
 }

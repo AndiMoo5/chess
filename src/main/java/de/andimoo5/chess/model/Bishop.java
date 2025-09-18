@@ -16,4 +16,11 @@ public class Bishop extends Piece{
     public PieceType getType() {
         return PieceType.BISHOP;
     }
+
+    @Override
+    public Piece clone() {
+        Piece copy = new Bishop(isWhite, position);
+        copy.setHasMoved(hasMoved);
+        return copy;
+    }
 }

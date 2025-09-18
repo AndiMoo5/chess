@@ -19,4 +19,11 @@ public class Queen extends Piece{
     public PieceType getType() {
         return PieceType.QUEEN;
     }
+
+    @Override
+    public Piece clone() {
+        Piece copy = new Queen(isWhite, position);
+        copy.setHasMoved(hasMoved);
+        return copy;
+    }
 }

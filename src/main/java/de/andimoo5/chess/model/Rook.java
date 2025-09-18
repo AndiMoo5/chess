@@ -16,4 +16,11 @@ public class Rook extends Piece{
     public PieceType getType() {
         return PieceType.ROOK;
     }
+
+    @Override
+    public Piece clone() {
+        Piece copy = new Rook(isWhite, position);
+        copy.setHasMoved(hasMoved);
+        return copy;
+    }
 }

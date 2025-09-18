@@ -70,4 +70,6 @@ public abstract class Piece {
     public String toString() {
         return getType().toString() + " at " + position.toString();
     }
+
+    public abstract Piece clone();
 }

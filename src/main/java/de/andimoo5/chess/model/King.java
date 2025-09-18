@@ -57,4 +57,11 @@ public class King extends Piece{
     public PieceType getType() {
         return PieceType.KING;
     }
+
+    @Override
+    public Piece clone() {
+        Piece copy = new King(isWhite, position);
+        copy.setHasMoved(hasMoved);
+        return copy;
+    }
 }
